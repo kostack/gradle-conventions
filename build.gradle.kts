@@ -3,11 +3,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
   `kotlin-dsl`
   `version-catalog`
-  `maven-publish`
+  // Build tooling of this repository only, so not part of the published catalog
+  id("com.vanniktech.maven.publish.base") version "0.33.0"
 }
 
 group = "io.github.kostack"
 version = providers.gradleProperty("projectVersion").getOrElse("1.0.0")
+description = "Gradle conventions for kostack Spring Boot services"
 
 repositories {
   mavenCentral()
@@ -18,6 +20,10 @@ repositories {
 java {
   sourceCompatibility = JavaVersion.VERSION_17
   targetCompatibility = JavaVersion.VERSION_17
+
+  // Required by Maven Central
+  withSourcesJar()
+  withJavadocJar()
 }
 
 kotlin {
@@ -38,6 +44,12 @@ dependencies {
   implementation(libs.plugins.spring.dependency.management.asDependency())
   implementation(libs.plugins.spotless.asDependency())
   implementation(libs.dotenv)
+
+  // Tests of this repository only, so not part of the published catalog
+  testImplementation(platform("org.junit:junit-bom:6.0.3"))
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testImplementation(gradleTestKit())
 }
 
 // "group:name:version" of a catalog library
@@ -85,11 +97,103 @@ catalog {
   }
 }
 
+gradlePlugin {
+  website = "https://github.com/kostack/gradle-conventions"
+  vcsUrl = "https://github.com/kostack/gradle-conventions"
+
+  plugins {
+    named("io.github.kostack.settings") {
+      displayName = "kostack settings"
+      description = "Repositories, shared version catalog and convention plugin version for kostack services"
+    }
+    named("io.github.kostack.spring-service") {
+      displayName = "kostack Spring service"
+      description = "Build conventions for kostack Spring Boot services"
+    }
+  }
+}
+
+// Maven Central requires javadoc and sources jars next to every artifact, so the catalog gets empty ones
+val catalogJavadocJar =
+  tasks.register<Jar>("catalogJavadocJar") {
+    archiveBaseName = "gradle-conventions-catalog"
+    archiveClassifier = "javadoc"
+  }
+val catalogSourcesJar =
+  tasks.register<Jar>("catalogSourcesJar") {
+    archiveBaseName = "gradle-conventions-catalog"
+    archiveClassifier = "sources"
+    from("gradle/libs.versions.toml")
+  }
+
+// Local repository the functional tests resolve the plugins and catalog from, exactly as published
+val testRepository = layout.buildDirectory.dir("test-repository")
+
 publishing {
+  repositories {
+    maven {
+      name = "test"
+      url = uri(testRepository)
+    }
+  }
   publications {
     create<MavenPublication>("versionCatalog") {
       artifactId = "gradle-conventions-catalog"
       from(components["versionCatalog"])
+      artifact(catalogJavadocJar)
+      artifact(catalogSourcesJar)
     }
+  }
+}
+
+// Applies to every publication: both plugins, their markers and the catalog
+mavenPublishing {
+  publishToMavenCentral()
+
+  // Maven Central requires signatures; the key is set in CI, publishToMavenLocal works without it
+  if (providers.gradleProperty("signingInMemoryKey").isPresent) {
+    signAllPublications()
+  }
+
+  pom {
+    name = "kostack gradle-conventions"
+    description = project.description
+    url = "https://github.com/kostack/gradle-conventions"
+
+    licenses {
+      license {
+        name = "MIT License"
+        url = "https://opensource.org/licenses/MIT"
+      }
+    }
+
+    developers {
+      developer {
+        id = "zender"
+        name = "Nikolay Georgiev"
+        url = "https://github.com/zender"
+      }
+    }
+
+    scm {
+      connection = "scm:git:git://github.com/kostack/gradle-conventions.git"
+      developerConnection = "scm:git:ssh://github.com/kostack/gradle-conventions.git"
+      url = "https://github.com/kostack/gradle-conventions"
+    }
+  }
+}
+
+tasks.test {
+  useJUnitPlatform()
+  dependsOn("publishAllPublicationsToTestRepository")
+
+  systemProperty("kostack.testRepository", testRepository.get().asFile.absolutePath)
+  systemProperty("kostack.version", version.toString())
+  systemProperty("kostack.editorconfig", file(".editorconfig").absolutePath)
+  inputs.file(".editorconfig")
+
+  testLogging {
+    events("passed", "skipped", "failed")
+    exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
   }
 }

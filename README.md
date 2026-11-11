@@ -20,7 +20,7 @@ published catalog are all built from that file.
 ```kotlin
 pluginManagement {
   repositories {
-    mavenLocal() // until the plugins are published to a remote repository
+    mavenCentral()
     gradlePluginPortal()
   }
 }
@@ -53,8 +53,6 @@ A service also needs:
 - `.editorconfig`: ktlint reads its formatting rules from it. Without it, ktlint expects 4-space indentation and
   `spotlessCheck` fails. Copy the one from this repository.
 - The Gradle wrapper (Gradle 9.x).
-- `kostack.useMavenLocal=true` in `gradle.properties`, while the artifacts are only published to Maven Local. See
-  [Repositories](#repositories).
 
 To upgrade a service, change only the version of `io.github.kostack.settings`.
 
@@ -86,10 +84,10 @@ dependencyResolutionManagement {
 }
 ```
 
-Set `kostack.useMavenLocal=true` (in `gradle.properties` or with `-Pkostack.useMavenLocal=true`) to resolve
-`io.github.kostack` artifacts from `~/.m2` as well. This is needed to test unreleased versions published with
-`publishToMavenLocal`, and for now for every service, because nothing is published remotely yet. Only the
-`io.github.kostack` group is read from Maven Local.
+To test an unreleased version published with `publishToMavenLocal`, add `mavenLocal()` to the service's
+`pluginManagement` repositories and set `kostack.useMavenLocal=true` (in `gradle.properties` or with
+`-Pkostack.useMavenLocal=true`). The settings plugin then also reads `io.github.kostack` artifacts from `~/.m2`, and only
+that group.
 
 The `pluginManagement { repositories { } }` block has to stay in the service: Gradle needs it to find the settings
 plugin itself.
@@ -249,16 +247,86 @@ plugin uses to import the matching catalog and convention plugin.
      `put("MY_LIB", libs.my.lib.asCoordinates())`.
   3. Use it in the plugin as `implementation(KostackVersions.MY_LIB)`.
 
-### Build and publish
+### Tests
+
+The tests in `src/test/kotlin` are functional tests with Gradle TestKit. Each one creates a small Spring Boot service
+in a temporary directory and runs a real build of it. Before running, the build publishes all artifacts to
+`build/test-repository`. The sample services resolve the plugins and catalog from there, so the tests cover the
+published artifacts, not just the compiled classes.
+
+| Test | Covers |
+|---|---|
+| `SpringServicePluginTest` | Full `build` with the configuration cache, `app.jar`, coverage minimum and exclusions, `test` profile with `docker/.env.test`, `installGitHook` |
+| `SettingsPluginTest` | Catalog imported as `libs`, or as `kostackLibs` next to a service's own catalog, and the project group |
 
 ```shell
-./gradlew build                                   # compile the plugin
-./gradlew publishToMavenLocal                     # publish both plugins, their markers and the catalog to ~/.m2
+./gradlew test                                     # about a minute with a warm cache
+./gradlew test --tests '*SettingsPluginTest*'
+```
+
+The sample services download their dependencies from Maven Central, so the tests need network access. The first run
+takes longer. Running the tests requires `git` on the `PATH`.
+
+The tests run in CI before every release, so a version bump in `libs.versions.toml` that breaks a service blocks the
+release.
+
+### Build and publish locally
+
+```shell
+./gradlew build                                   # compile the plugins
+./gradlew publishToMavenLocal                     # publish everything to ~/.m2, unsigned
 ./gradlew publishToMavenLocal -PprojectVersion=1.1.0
 ```
 
-The plugin targets Java 17 bytecode, so services can run Gradle on any JDK from 17 up. The services themselves compile
+The plugins target Java 17 bytecode, so services can run Gradle on any JDK from 17 up. The services themselves compile
 with the `java` toolchain version (25).
 
-The only publishing target is Maven Local. To publish elsewhere, add a repository to the `publishing { }` block in
-`build.gradle.kts`.
+## Releasing to Maven Central
+
+Publishing uses [`com.vanniktech.maven.publish`](https://vanniktech.github.io/gradle-maven-publish-plugin/), like the
+other kostack libraries. One release publishes these artifacts, all under the same version:
+
+| Artifact | Contents |
+|---|---|
+| `io.github.kostack:gradle-conventions` | Plugin code: jar, sources, javadoc |
+| `io.github.kostack.settings:io.github.kostack.settings.gradle.plugin` | Plugin marker of the settings plugin |
+| `io.github.kostack.spring-service:io.github.kostack.spring-service.gradle.plugin` | Plugin marker of the convention plugin |
+| `io.github.kostack:gradle-conventions-catalog` | Version catalog (`.toml`), with empty sources and javadoc jars |
+
+Every artifact is signed. Signing runs only when `signingInMemoryKey` is set, which is why `publishToMavenLocal`
+works without a key.
+
+### Release steps
+
+```shell
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+The [`publish`](.github/workflows/publish.yml) workflow builds the project, then runs
+`publishAndReleaseToMavenCentral` with the version taken from the tag (`v1.1.0` → `1.1.0`). The artifacts appear on
+Maven Central a few minutes after the Central Portal finishes validating them.
+
+### Repository secrets
+
+| Secret | Value |
+|---|---|
+| `MAVEN_CENTRAL_USERNAME` | Central Portal user token username |
+| `MAVEN_CENTRAL_PASSWORD` | Central Portal user token password |
+| `SIGNING_IN_MEMORY_KEY` | ASCII-armored private GPG key, base64-encoded |
+| `SIGNING_IN_MEMORY_KEY_ID` | Last 8 characters of the key id |
+| `SIGNING_IN_MEMORY_KEY_PASSWORD` | Passphrase of the key |
+
+These are the same secrets the other kostack repositories use.
+
+### Releasing from a local machine
+
+Put the same values in `~/.gradle/gradle.properties` (`mavenCentralUsername`, `mavenCentralPassword`,
+`signingInMemoryKey`, `signingInMemoryKeyId`, `signingInMemoryKeyPassword`), then run:
+
+```shell
+./gradlew publishAndReleaseToMavenCentral -PprojectVersion=1.1.0
+```
+
+Use `publishToMavenCentral` instead to upload without releasing, and release from the Central Portal UI after checking
+the deployment.
