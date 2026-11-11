@@ -102,15 +102,42 @@ dependencies {
   testImplementation(kotlin("test"))
 }
 
+// Formatting rules bundled with the plugin (a copy of this repository's .editorconfig)
+val bundledEditorConfig =
+  resources.text
+    .fromString(
+      KostackExtension::class.java
+        .getResource("editorconfig")!!
+        .readText()
+    ).asFile()
+
+// Spotless reads the root project's .editorconfig; without one, ktlint falls back to the bundled rules instead of
+// its own defaults (4-space indentation)
+val useBundledEditorConfig = !rootDir.resolve(".editorconfig").isFile
+
 spotless {
   kotlin {
     target("src/**/*.kt")
-    ktlint()
+    ktlint().apply { if (useBundledEditorConfig) setEditorConfigPath(bundledEditorConfig) }
   }
   kotlinGradle {
     target("*.kts")
-    ktlint()
+    ktlint().apply { if (useBundledEditorConfig) setEditorConfigPath(bundledEditorConfig) }
   }
+}
+
+// Writes the bundled .editorconfig to the root of the service, so the IDE formats like ktlint. Overwrites the
+// existing file, so running it again after a plugin upgrade picks up the new rules
+tasks.register("installEditorConfig") {
+  group = "build setup"
+  description = "Writes the .editorconfig bundled with the plugin to the root of the project"
+
+  val source = bundledEditorConfig
+  val target = layout.projectDirectory.file(".editorconfig")
+  inputs.file(source)
+  outputs.file(target)
+
+  doLast { source.copyTo(target.asFile, overwrite = true) }
 }
 
 // Asks git for the hooks directory so worktrees and core.hooksPath are respected

@@ -113,4 +113,27 @@ class SpringServicePluginTest {
     assertTrue(hook.canExecute(), "pre-commit hook is executable")
     assertTrue("spotlessCheck" in hook.readText(), "pre-commit hook runs spotlessCheck")
   }
+
+  @Test
+  fun `checks formatting with the bundled editorconfig when the service has none`() {
+    val service = SampleService(dir)
+    dir.resolve(".editorconfig").delete()
+
+    // The sample sources use 2-space indentation, which ktlint's own defaults reject
+    val result = service.build("spotlessCheck")
+
+    assertEquals(TaskOutcome.SUCCESS, result.task(":spotlessCheck")?.outcome, result.output)
+  }
+
+  @Test
+  fun `installs the bundled editorconfig over an existing one`() {
+    val service = SampleService(dir)
+    val editorConfig = dir.resolve(".editorconfig")
+    val expected = editorConfig.readText()
+    editorConfig.writeText("[*]\nindent_size = 4\n")
+
+    service.build("installEditorConfig")
+
+    assertEquals(expected, editorConfig.readText(), ".editorconfig is replaced by the bundled one")
+  }
 }

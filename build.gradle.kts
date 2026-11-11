@@ -91,6 +91,14 @@ sourceSets.main {
   kotlin.srcDir(generateKostackVersions)
 }
 
+// The repository's own .editorconfig is the one bundled with the plugin, so there is a single copy to maintain
+tasks.processResources {
+  from(".editorconfig") {
+    into("io/github/kostack/gradle")
+    rename { "editorconfig" }
+  }
+}
+
 catalog {
   versionCatalog {
     from(files("gradle/libs.versions.toml"))

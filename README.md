@@ -49,8 +49,8 @@ dependencies {
 
 A service also needs:
 
-- `.editorconfig`: ktlint reads its formatting rules from it. Without it, ktlint expects 4-space indentation and
-  `spotlessCheck` fails. Copy the one from this repository.
+- `.editorconfig`: run `./gradlew installEditorConfig` and commit the file, so the IDE formats like ktlint. Without
+  it, `spotlessCheck` still works: ktlint then uses the `.editorconfig` bundled with the plugin.
 - The Gradle wrapper (Gradle 9.x).
 
 To upgrade a service, change only the version of `io.github.kostack.settings`.
@@ -144,9 +144,14 @@ Add those in the service.
 | `jacocoTestCoverageVerification` | Fails the build when coverage is below `kostack.coverageMinimum`. `check` depends on it |
 | `spotlessCheck` / `spotlessApply` | Check or fix formatting. `test` runs after `spotlessCheck` when both are requested |
 | `installGitHook` | Installs a pre-commit hook that runs `spotlessCheck` and runs `spotlessApply` when it fails |
+| `installEditorConfig` | Writes the `.editorconfig` bundled with the plugin to the root of the service, replacing any existing one |
 
 `installGitHook` uses `scripts/pre-commit.sh` from the service when that file exists. Otherwise it uses the hook bundled
 with the plugin. It asks git for the hooks directory, so worktrees and `core.hooksPath` are respected.
+
+The bundled `.editorconfig` is a copy of the one in this repository. When the service has an `.editorconfig` in its
+root, ktlint uses that file. Otherwise it uses the bundled one. Run `installEditorConfig` again after upgrading the
+plugin to pick up rule changes; the diff shows what changed.
 
 ## Spring profiles and environment
 
@@ -214,6 +219,7 @@ A service with its own `gradle/libs.versions.toml` gets both catalogs: its own a
 
 ```
 gradle-conventions/
+├── .editorconfig                                      formatting rules, also bundled with the plugin
 ├── build.gradle.kts                                   plugin build and publishing
 ├── gradle/libs.versions.toml                          single source of versions
 └── src/main/
@@ -254,7 +260,7 @@ published artifacts, not just the compiled classes.
 
 | Test | Covers |
 |---|---|
-| `SpringServicePluginTest` | Full `build` with the configuration cache, `app.jar`, coverage minimum and exclusions, `test` profile with `docker/.env.test`, `installGitHook` |
+| `SpringServicePluginTest` | Full `build` with the configuration cache, `app.jar`, coverage minimum and exclusions, `test` profile with `docker/.env.test`, `installGitHook`, bundled `.editorconfig` fallback, `installEditorConfig` |
 | `SettingsPluginTest` | Catalog imported as `libs`, or as `kostackLibs` next to a service's own catalog, and the project group |
 
 ```shell
