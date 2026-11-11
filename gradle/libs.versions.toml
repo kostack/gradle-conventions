@@ -1,0 +1,38 @@
+[versions]
+java = "25"
+kotlin = "2.4.21"
+springBoot = "4.1.2"
+springDependencyManagement = "1.1.7"
+spotless = "8.11.0"
+springCloud = "2025.1.4"
+springShell = "4.0.3"
+dotenv = "3.2.0"
+mockk = "1.14.11"
+springdoc = "3.2.0"
+logbackGelf = "1.1.11"
+kostackEventDispatcher = "1.2.3"
+kostackApiErrors = "1.0.0"
+kostackDatabaseTools = "1.0.4"
+kostackFixtures = "1.1.0"
+kostackJwtSecurity = "2.0.0-beta-8"
+
+[libraries]
+dotenv = { module = "io.github.cdimascio:dotenv-java", version.ref = "dotenv" }
+spring-cloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "springCloud" }
+spring-shell-bom = { module = "org.springframework.shell:spring-shell-dependencies", version.ref = "springShell" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+springdoc-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version.ref = "springdoc" }
+logback-gelf = { module = "com.github.pukkaone:logback-gelf", version.ref = "logbackGelf" }
+kostack-event-dispatcher = { module = "io.github.kostack:event-dispatcher", version.ref = "kostackEventDispatcher" }
+kostack-api-errors = { module = "io.github.kostack:api-errors", version.ref = "kostackApiErrors" }
+kostack-database-tools = { module = "io.github.kostack:database-tools", version.ref = "kostackDatabaseTools" }
+kostack-fixtures = { module = "io.github.kostack:fixtures", version.ref = "kostackFixtures" }
+kostack-jwt-security = { module = "io.github.kostack:jwt-security", version.ref = "kostackJwtSecurity" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
