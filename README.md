@@ -44,7 +44,6 @@ description = "My kostack service"
 dependencies {
   // Only what is specific to this service
   implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
-  implementation(libs.logback.gelf)
 }
 ```
 
@@ -194,13 +193,12 @@ for libraries the plugin does not add:
 
 ```kotlin
 dependencies {
-  implementation(libs.logback.gelf)
+  implementation(libs.dotenv)
 }
 ```
 
 | Alias | Library |
 |---|---|
-| `libs.logback.gelf` | `com.github.pukkaone:logback-gelf` |
 | `libs.springdoc.webflux.ui` | `org.springdoc:springdoc-openapi-starter-webflux-ui` (already added by the plugin) |
 | `libs.mockk` | `io.mockk:mockk` (already added by the plugin) |
 | `libs.dotenv` | `io.github.cdimascio:dotenv-java` |
@@ -208,7 +206,7 @@ dependencies {
 | `libs.spring.cloud.bom`, `libs.spring.shell.bom` | BOMs (already imported by the plugin) |
 
 A service with its own `gradle/libs.versions.toml` gets both catalogs: its own as `libs`, and the shared one as
-`kostackLibs`. For example, `kostackLibs.logback.gelf`.
+`kostackLibs`. For example, `kostackLibs.dotenv`.
 
 ## Development
 

@@ -38,6 +38,17 @@ class SpringServicePluginTest {
       }
       """
     )
+    // Untested too, but under a default exclusion that add() below must keep
+    service.write(
+      "src/main/kotlin/sample/configuration/UntestedConfig.kt",
+      """
+      package sample.configuration
+
+      class UntestedConfig {
+        fun value(input: Int) = if (input > 0) input * 2 else input - 1
+      }
+      """
+    )
     service.write("build.gradle.kts", SampleService.buildScript(kostack = listOf("coverageMinimum = 0.9")))
 
     val failure = service.buildAndFail("check")
@@ -55,6 +66,7 @@ class SpringServicePluginTest {
     val report = dir.resolve("build/reports/jacoco/test/jacocoTestReport.xml").readText()
     assertTrue("sample/Greeter" in report, "Greeter is in the report")
     assertTrue("sample/Untested" !in report, "Untested is excluded from the report")
+    assertTrue("sample/configuration" !in report, "the default exclusions are kept")
   }
 
   @Test

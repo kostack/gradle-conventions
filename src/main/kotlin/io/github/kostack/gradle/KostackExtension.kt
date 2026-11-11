@@ -22,7 +22,7 @@ abstract class KostackExtension {
 
   init {
     coverageMinimum.convention(0.5)
-    coverageExclusions.convention(
+    coverageExclusions.set(
       listOf(
         "**/command/**",
         "**/configuration/**",

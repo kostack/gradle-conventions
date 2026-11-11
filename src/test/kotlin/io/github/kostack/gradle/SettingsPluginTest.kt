@@ -14,12 +14,12 @@ class SettingsPluginTest {
     val service = SampleService(dir)
     service.write(
       "build.gradle.kts",
-      SampleService.buildScript(dependencies = listOf("implementation(libs.logback.gelf)"))
+      SampleService.buildScript(dependencies = listOf("implementation(libs.dotenv)"))
     )
 
     val result = service.build("dependencies", "--configuration", "runtimeClasspath", "properties")
 
-    assertTrue("com.github.pukkaone:logback-gelf:" in result.output, result.output)
+    assertTrue("io.github.cdimascio:dotenv-java:" in result.output, result.output)
     assertTrue("group: io.github.kostack" in result.output, result.output)
   }
 
@@ -39,7 +39,7 @@ class SettingsPluginTest {
         dependencies =
           listOf(
             "implementation(libs.commons.lang)",
-            "implementation(kostackLibs.logback.gelf)"
+            "implementation(kostackLibs.dotenv)"
           )
       )
     )
@@ -47,6 +47,6 @@ class SettingsPluginTest {
     val result = service.build("dependencies", "--configuration", "runtimeClasspath")
 
     assertTrue("org.apache.commons:commons-lang3:3.17.0" in result.output, result.output)
-    assertTrue("com.github.pukkaone:logback-gelf:" in result.output, result.output)
+    assertTrue("io.github.cdimascio:dotenv-java:" in result.output, result.output)
   }
 }
