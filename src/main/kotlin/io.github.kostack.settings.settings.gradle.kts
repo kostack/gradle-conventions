@@ -24,6 +24,7 @@ pluginManagement {
   }
 }
 
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
   repositories {
     if (useMavenLocal) {
