@@ -126,7 +126,7 @@ plugins. They come with the convention plugin.
 | Security | `spring-boot-starter-security`, `spring-boot-starter-security-oauth2-resource-server`, `spring-boot-starter-oauth2-client` |
 | Messaging | `spring-cloud-starter-stream-rabbit` |
 | Shell | `spring-shell-starter` |
-| kostack | `event-dispatcher`, `api-errors`, `database-tools`, `fixtures`, `jwt-security` |
+| kostack | `event-dispatcher`, `spring-tools`, `database-tools`, `fixtures`, `jwt-security` |
 | Test | `spring-boot-starter-test`, `reactor-test`, `kotlin-test`, `kotlin-test-junit5`, `kotlinx-coroutines-test`, `mockk`, `junit-platform-launcher` (runtime) |
 
 Data access is not included, because it differs between services: Mongo, R2DBC, Flyway, JDBC and database drivers.

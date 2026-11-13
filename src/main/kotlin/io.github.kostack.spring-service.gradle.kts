@@ -88,7 +88,7 @@ dependencies {
 
   // kostack
   implementation(KostackVersions.KOSTACK_EVENT_DISPATCHER)
-  implementation(KostackVersions.KOSTACK_API_ERRORS)
+  implementation(KostackVersions.KOSTACK_SPRING_TOOLS)
   implementation(KostackVersions.KOSTACK_DATABASE_TOOLS)
   implementation(KostackVersions.KOSTACK_FIXTURES)
   implementation(KostackVersions.KOSTACK_JWT_SECURITY)

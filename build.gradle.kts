@@ -70,7 +70,7 @@ val generateKostackVersions =
         put("MOCKK", libs.versions.mockk)
         put("SPRINGDOC_WEBFLUX_UI", libs.springdoc.webflux.ui.asCoordinates())
         put("KOSTACK_EVENT_DISPATCHER", libs.kostack.event.dispatcher.asCoordinates())
-        put("KOSTACK_API_ERRORS", libs.kostack.api.errors.asCoordinates())
+        put("KOSTACK_SPRING_TOOLS", libs.kostack.spring.tools.asCoordinates())
         put("KOSTACK_DATABASE_TOOLS", libs.kostack.database.tools.asCoordinates())
         put("KOSTACK_FIXTURES", libs.kostack.fixtures.asCoordinates())
         put("KOSTACK_JWT_SECURITY", libs.kostack.jwt.security.asCoordinates())
