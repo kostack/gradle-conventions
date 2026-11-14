@@ -122,7 +122,7 @@ plugins. They come with the convention plugin.
 |---|---|
 | Kotlin | `kotlinx-coroutines-core`, `kotlinx-coroutines-reactor`, `kotlinx-serialization-json`, `kotlin-reflect`, `jackson-module-kotlin` |
 | Web | `spring-boot-starter-webflux`, `spring-boot-starter-validation`, `spring-boot-starter-actuator` |
-| OpenAPI | `springdoc-openapi-starter-webflux-ui` |
+| OpenAPI | `springdoc-openapi-starter-webflux-scalar` |
 | Security | `spring-boot-starter-security`, `spring-boot-starter-security-oauth2-resource-server`, `spring-boot-starter-oauth2-client` |
 | Messaging | `spring-cloud-starter-stream-rabbit` |
 | Shell | `spring-shell-starter`, `spring-shell-jline` |
@@ -136,7 +136,7 @@ Add those in the service.
 
 | Task | Description |
 |---|---|
-| `bootRun` | Builds `bootJar`, then runs the app with the active profile and `--enable-native-access=ALL-UNNAMED` (for JLine) |
+| `bootRun` | Runs the app with the active profile and `--enable-native-access=ALL-UNNAMED` (for JLine) |
 | `bootRunConsumer` | Runs the app with the `cloud-consumer` profile only (RabbitMQ consumers, no HTTP server) |
 | `bootJar` | Produces `build/libs/app.jar` (no version in the file name), with `Enable-Native-Access: ALL-UNNAMED` in the manifest |
 | `test` | JUnit Platform, always runs with the `test` profile, logs passed/skipped/failed and standard streams |
@@ -202,7 +202,7 @@ dependencies {
 
 | Alias | Library |
 |---|---|
-| `libs.springdoc.webflux.ui` | `org.springdoc:springdoc-openapi-starter-webflux-ui` (already added by the plugin) |
+| `libs.springdoc.webflux.scalar` | `org.springdoc:springdoc-openapi-starter-webflux-scalar` (already added by the plugin) |
 | `libs.mockk` | `io.mockk:mockk` (already added by the plugin) |
 | `libs.kostack.*` | kostack libraries (already added by the plugin) |
 | `libs.spring.cloud.bom`, `libs.spring.shell.bom` | BOMs (already imported by the plugin) |

@@ -18,7 +18,7 @@ kostackJwtSecurity = "2.0.1"
 spring-cloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "springCloud" }
 spring-shell-bom = { module = "org.springframework.shell:spring-shell-dependencies", version.ref = "springShell" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-springdoc-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version.ref = "springdoc" }
+springdoc-webflux-scalar = { module = "org.springdoc:springdoc-openapi-starter-webflux-scalar", version.ref = "springdoc" }
 kostack-event-dispatcher = { module = "io.github.kostack:event-dispatcher", version.ref = "kostackEventDispatcher" }
 kostack-spring-tools = { module = "io.github.kostack:spring-tools", version.ref = "kostackSpringTools" }
 kostack-database-tools = { module = "io.github.kostack:database-tools", version.ref = "kostackDatabaseTools" }

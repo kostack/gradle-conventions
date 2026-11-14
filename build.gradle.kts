@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.kostack"
-version = providers.gradleProperty("projectVersion").getOrElse("1.0.0")
+version = providers.gradleProperty("projectVersion").getOrElse("1.1.1-rc1")
 description = "Gradle conventions for kostack Spring Boot services"
 
 repositories {
@@ -67,7 +67,7 @@ val generateKostackVersions =
         put("SPRING_CLOUD", libs.versions.springCloud)
         put("SPRING_SHELL", libs.versions.springShell)
         put("MOCKK", libs.versions.mockk)
-        put("SPRINGDOC_WEBFLUX_UI", libs.springdoc.webflux.ui.asCoordinates())
+        put("SPRINGDOC_WEBFLUX_SCALAR", libs.springdoc.webflux.scalar.asCoordinates())
         put("KOSTACK_EVENT_DISPATCHER", libs.kostack.event.dispatcher.asCoordinates())
         put("KOSTACK_SPRING_TOOLS", libs.kostack.spring.tools.asCoordinates())
         put("KOSTACK_DATABASE_TOOLS", libs.kostack.database.tools.asCoordinates())

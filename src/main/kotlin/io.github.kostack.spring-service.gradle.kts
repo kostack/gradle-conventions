@@ -58,8 +58,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-  // OpenAPI documentation and Swagger UI
-  implementation(KostackVersions.SPRINGDOC_WEBFLUX_UI)
+  // OpenAPI documentation and Scalar API reference UI
+  implementation(KostackVersions.SPRINGDOC_WEBFLUX_SCALAR)
 
   // Security
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -176,7 +176,6 @@ tasks.withType<BootRun>().configureEach {
 }
 
 tasks.named<BootRun>("bootRun") {
-  dependsOn(tasks.named<BootJar>("bootJar"))
   environment("SPRING_PROFILES_ACTIVE", springProfile)
 }
 
