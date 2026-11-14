@@ -132,11 +132,16 @@ plugins. They come with the convention plugin.
 Data access is not included, because it differs between services: Mongo, R2DBC, Flyway, JDBC and database drivers.
 Add those in the service.
 
+The API reference UI is [Scalar](https://scalar.com), served at `/scalar` (set `scalar.path` to change it). The OpenAPI
+document stays at `/v3/api-docs`. A service with Spring Security rules for its docs must permit both paths.
+
+`spring-shell-jline` gives the shell Tab completion, history and line editing.
+
 ### Tasks
 
 | Task | Description |
 |---|---|
-| `bootRun` | Runs the app with the active profile and `--enable-native-access=ALL-UNNAMED` (for JLine) |
+| `bootRun` | Runs the app from the compiled classes with the active profile |
 | `bootRunConsumer` | Runs the app with the `cloud-consumer` profile only (RabbitMQ consumers, no HTTP server) |
 | `bootJar` | Produces `build/libs/app.jar` (no version in the file name), with `Enable-Native-Access: ALL-UNNAMED` in the manifest |
 | `test` | JUnit Platform, always runs with the `test` profile, logs passed/skipped/failed and standard streams |
@@ -145,6 +150,10 @@ Add those in the service.
 | `spotlessCheck` / `spotlessApply` | Check or fix formatting. `test` runs after `spotlessCheck` when both are requested |
 | `installGitHook` | Installs a pre-commit hook that runs `spotlessCheck` and runs `spotlessApply` when it fails |
 | `installEditorConfig` | Writes the `.editorconfig` bundled with the plugin to the root of the service, replacing any existing one |
+
+JLine uses the Foreign Function & Memory API. To avoid the restricted-method warning, `bootRun`, `bootRunConsumer` and
+`test` run with `--enable-native-access=ALL-UNNAMED`, and `app.jar` declares `Enable-Native-Access: ALL-UNNAMED` in
+its manifest, so `java -jar app.jar` needs no flag.
 
 `installGitHook` uses `scripts/pre-commit.sh` from the service when that file exists. Otherwise it uses the hook bundled
 with the plugin. It asks git for the hooks directory, so worktrees and `core.hooksPath` are respected.
@@ -183,7 +192,7 @@ kostack {
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `coverageMinimum` | `Double` | `0.5` | Minimum coverage ratio (0.0 to 1.0) enforced by `jacocoTestCoverageVerification` |
-| `coverageExclusions` | `List<String>` | `**/command/**`, `**/configuration/**`, `**/fixture/**` | Ant-style patterns of classes excluded from coverage |
+| `coverageExclusions` | `List<String>` | `**/command/**`, `**/configuration/**`, `**/fixture/**`, `**/*Application.class`, `**/*ApplicationKt.class` | Ant-style patterns of classes excluded from coverage |
 
 Use `coverageExclusions.add(...)` to extend the defaults, or `coverageExclusions = listOf(...)` to replace them.
 

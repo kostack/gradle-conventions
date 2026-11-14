@@ -26,7 +26,10 @@ abstract class KostackExtension {
       listOf(
         "**/command/**",
         "**/configuration/**",
-        "**/fixture/**"
+        "**/fixture/**",
+        // Spring Boot entry point (*Application.kt): the class and the top-level main()
+        "**/*Application.class",
+        "**/*ApplicationKt.class"
       )
     )
   }

@@ -128,11 +128,12 @@ class SampleService(
         appendLine("plugins {")
         appendLine("  id(\"io.github.kostack.spring-service\")")
         appendLine("}")
-        appendLine()
-        appendLine("kostack {")
-        appendLine("  coverageExclusions.add(\"**/SampleApplication*\")")
-        kostack.forEach { appendLine("  $it") }
-        appendLine("}")
+        if (kostack.isNotEmpty()) {
+          appendLine()
+          appendLine("kostack {")
+          kostack.forEach { appendLine("  $it") }
+          appendLine("}")
+        }
         if (dependencies.isNotEmpty()) {
           appendLine()
           appendLine("dependencies {")

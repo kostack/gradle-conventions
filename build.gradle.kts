@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.kostack"
-version = providers.gradleProperty("projectVersion").getOrElse("1.1.1-rc1")
+version = providers.gradleProperty("projectVersion").getOrElse("1.1.1")
 description = "Gradle conventions for kostack Spring Boot services"
 
 repositories {

@@ -67,6 +67,7 @@ class SpringServicePluginTest {
     assertTrue("sample/Greeter" in report, "Greeter is in the report")
     assertTrue("sample/Untested" !in report, "Untested is excluded from the report")
     assertTrue("sample/configuration" !in report, "the default exclusions are kept")
+    assertTrue("sample/SampleApplication" !in report, "the application entry point is excluded by default")
   }
 
   @Test
