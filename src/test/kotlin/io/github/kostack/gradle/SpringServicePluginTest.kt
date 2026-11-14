@@ -70,10 +70,8 @@ class SpringServicePluginTest {
   }
 
   @Test
-  fun `runs tests with the test profile and the docker env file`() {
+  fun `runs tests with the test profile`() {
     val service = SampleService(dir)
-    service.write("docker/.env", "GREETING=from-default-env-file")
-    service.write("docker/.env.test", "GREETING=from-test-env-file")
     service.write(
       "src/test/kotlin/sample/EnvironmentTest.kt",
       """
@@ -86,7 +84,6 @@ class SpringServicePluginTest {
         @Test
         fun environment() {
           assertEquals("test", System.getenv("SPRING_PROFILES_ACTIVE"))
-          assertEquals("from-test-env-file", System.getenv("GREETING"))
         }
       }
       """

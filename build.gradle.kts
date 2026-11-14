@@ -43,7 +43,6 @@ dependencies {
   implementation(libs.plugins.spring.boot.asDependency())
   implementation(libs.plugins.spring.dependency.management.asDependency())
   implementation(libs.plugins.spotless.asDependency())
-  implementation(libs.dotenv)
 
   // Tests of this repository only, so not part of the published catalog
   testImplementation(platform("org.junit:junit-bom:6.0.3"))

@@ -6,7 +6,6 @@ springDependencyManagement = "1.1.7"
 spotless = "8.11.0"
 springCloud = "2025.1.4"
 springShell = "4.0.3"
-dotenv = "3.2.0"
 mockk = "1.14.11"
 springdoc = "3.2.0"
 kostackEventDispatcher = "1.3.0"
@@ -16,7 +15,6 @@ kostackFixtures = "1.2.0"
 kostackJwtSecurity = "2.0.1"
 
 [libraries]
-dotenv = { module = "io.github.cdimascio:dotenv-java", version.ref = "dotenv" }
 spring-cloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "springCloud" }
 spring-shell-bom = { module = "org.springframework.shell:spring-shell-dependencies", version.ref = "springShell" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

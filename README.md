@@ -125,7 +125,7 @@ plugins. They come with the convention plugin.
 | OpenAPI | `springdoc-openapi-starter-webflux-ui` |
 | Security | `spring-boot-starter-security`, `spring-boot-starter-security-oauth2-resource-server`, `spring-boot-starter-oauth2-client` |
 | Messaging | `spring-cloud-starter-stream-rabbit` |
-| Shell | `spring-shell-starter` |
+| Shell | `spring-shell-starter`, `spring-shell-jline` |
 | kostack | `event-dispatcher`, `spring-tools`, `database-tools`, `fixtures`, `jwt-security` |
 | Test | `spring-boot-starter-test`, `reactor-test`, `kotlin-test`, `kotlin-test-junit5`, `kotlinx-coroutines-test`, `mockk`, `junit-platform-launcher` (runtime) |
 
@@ -136,9 +136,9 @@ Add those in the service.
 
 | Task | Description |
 |---|---|
-| `bootRun` | Builds `bootJar`, then runs the app with the environment of the active profile |
+| `bootRun` | Builds `bootJar`, then runs the app with the active profile and `--enable-native-access=ALL-UNNAMED` (for JLine) |
 | `bootRunConsumer` | Runs the app with the `cloud-consumer` profile only (RabbitMQ consumers, no HTTP server) |
-| `bootJar` | Produces `build/libs/app.jar` (no version in the file name) |
+| `bootJar` | Produces `build/libs/app.jar` (no version in the file name), with `Enable-Native-Access: ALL-UNNAMED` in the manifest |
 | `test` | JUnit Platform, always runs with the `test` profile, logs passed/skipped/failed and standard streams |
 | `jacocoTestReport` | Runs after every `test`, even when tests fail. Writes both HTML and XML reports |
 | `jacocoTestCoverageVerification` | Fails the build when coverage is below `kostack.coverageMinimum`. `check` depends on it |
@@ -153,7 +153,7 @@ The bundled `.editorconfig` is a copy of the one in this repository. When the se
 root, ktlint uses that file. Otherwise it uses the bundled one. Run `installEditorConfig` again after upgrading the
 plugin to pick up rule changes; the diff shows what changed.
 
-## Spring profiles and environment
+## Spring profiles
 
 The active profile is resolved in this order:
 
@@ -161,14 +161,13 @@ The active profile is resolved in this order:
 2. the `SPRING_PROFILES_ACTIVE` environment variable
 3. `dev`
 
-For a profile, variables are loaded from `docker/.env.<profile>`, falling back to `docker/.env`. A missing file is
-ignored. `SPRING_PROFILES_ACTIVE` is always set to the profile.
+Each task sets `SPRING_PROFILES_ACTIVE` to its profile:
 
-| Task | Profile | Env file |
-|---|---|---|
-| `bootRun` | active profile | `docker/.env.<profile>` or `docker/.env` |
-| `bootRunConsumer` | `cloud-consumer` | `docker/.env.cloud-consumer` or `docker/.env` |
-| `test` | `test` | `docker/.env.test` or `docker/.env` |
+| Task | Profile |
+|---|---|
+| `bootRun` | active profile |
+| `bootRunConsumer` | `cloud-consumer` |
+| `test` | `test` |
 
 ## Configuration
 
@@ -193,12 +192,11 @@ task actions.
 
 ## Version catalog
 
-The settings plugin imports the catalog automatically. It contains every entry of `libs.versions.toml`, and is useful
-for libraries the plugin does not add:
+The settings plugin imports the catalog automatically. It contains every entry of `libs.versions.toml`:
 
 ```kotlin
 dependencies {
-  implementation(libs.dotenv)
+  testImplementation(libs.mockk)
 }
 ```
 
@@ -206,12 +204,11 @@ dependencies {
 |---|---|
 | `libs.springdoc.webflux.ui` | `org.springdoc:springdoc-openapi-starter-webflux-ui` (already added by the plugin) |
 | `libs.mockk` | `io.mockk:mockk` (already added by the plugin) |
-| `libs.dotenv` | `io.github.cdimascio:dotenv-java` |
 | `libs.kostack.*` | kostack libraries (already added by the plugin) |
 | `libs.spring.cloud.bom`, `libs.spring.shell.bom` | BOMs (already imported by the plugin) |
 
 A service with its own `gradle/libs.versions.toml` gets both catalogs: its own as `libs`, and the shared one as
-`kostackLibs`. For example, `kostackLibs.dotenv`.
+`kostackLibs`. For example, `kostackLibs.mockk`.
 
 ## Development
 
@@ -260,7 +257,7 @@ published artifacts, not just the compiled classes.
 
 | Test | Covers |
 |---|---|
-| `SpringServicePluginTest` | Full `build` with the configuration cache, `app.jar`, coverage minimum and exclusions, `test` profile with `docker/.env.test`, `installGitHook`, bundled `.editorconfig` fallback, `installEditorConfig` |
+| `SpringServicePluginTest` | Full `build` with the configuration cache, `app.jar`, coverage minimum and exclusions, `test` profile, `installGitHook`, bundled `.editorconfig` fallback, `installEditorConfig` |
 | `SettingsPluginTest` | Catalog imported as `libs`, or as `kostackLibs` next to a service's own catalog, and the project group |
 
 ```shell

@@ -1,4 +1,3 @@
-import io.github.cdimascio.dotenv.Dotenv
 import io.github.kostack.gradle.KostackExtension
 import io.github.kostack.gradle.KostackVersions
 import org.gradle.testing.jacoco.tasks.JacocoReportBase
@@ -27,19 +26,6 @@ val springProfile =
     .gradleProperty("springProfile")
     .orElse(providers.environmentVariable("SPRING_PROFILES_ACTIVE"))
     .getOrElse("dev")
-
-// Variables from docker/.env.<profile> (or docker/.env) plus SPRING_PROFILES_ACTIVE for the given profile
-fun applicationEnvironmentFor(profile: String): Map<String, String> {
-  val envFilename = if (file("docker/.env.$profile").isFile) ".env.$profile" else ".env"
-  val dotenv =
-    Dotenv
-      .configure()
-      .directory(file("docker").absolutePath)
-      .filename(envFilename)
-      .ignoreIfMissing()
-      .load()
-  return dotenv.entries().associate { it.key to it.value } + ("SPRING_PROFILES_ACTIVE" to profile)
-}
 
 version = providers.gradleProperty("projectVersion").getOrElse("1.0.0")
 
@@ -85,6 +71,8 @@ dependencies {
 
   // Shell
   implementation("org.springframework.shell:spring-shell-starter")
+  // JLine line reader (Tab completion, history, line editing)
+  implementation("org.springframework.shell:spring-shell-jline")
 
   // kostack
   implementation(KostackVersions.KOSTACK_EVENT_DISPATCHER)
@@ -173,14 +161,23 @@ tasks.register<Copy>("installGitHook") {
   filePermissions { unix("rwxr-xr-x") }
 }
 
+// JLine (Spring Shell) uses the FFM API; grant native access to avoid the restricted-method warning
 tasks.named<BootJar>("bootJar") {
   archiveBaseName.set("app")
   archiveVersion.set("")
+  manifest {
+    attributes("Enable-Native-Access" to "ALL-UNNAMED")
+  }
+}
+
+// Covers bootRun and bootRunConsumer
+tasks.withType<BootRun>().configureEach {
+  jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
 tasks.named<BootRun>("bootRun") {
   dependsOn(tasks.named<BootJar>("bootJar"))
-  environment(applicationEnvironmentFor(springProfile))
+  environment("SPRING_PROFILES_ACTIVE", springProfile)
 }
 
 // Runs only the RabbitMQ consumers (cloud-consumer profile, no HTTP server), whatever springProfile is set
@@ -192,13 +189,13 @@ tasks.register<BootRun>("bootRunConsumer") {
   classpath = bootRun.get().classpath
   mainClass.set(bootRun.flatMap { it.mainClass })
 
-  environment(applicationEnvironmentFor("cloud-consumer"))
+  environment("SPRING_PROFILES_ACTIVE", "cloud-consumer")
 }
 
 tasks.withType<Test>().configureEach {
   useJUnitPlatform()
   // Always the test profile: fixtures (FixtureConfig) exist only with shell and test, not with dev
-  environment(applicationEnvironmentFor("test"))
+  environment("SPRING_PROFILES_ACTIVE", "test")
   testLogging {
     events("passed", "skipped", "failed")
     showStandardStreams = true
