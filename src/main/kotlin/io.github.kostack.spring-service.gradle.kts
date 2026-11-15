@@ -88,6 +88,8 @@ dependencies {
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
   testImplementation("io.mockk:mockk:${KostackVersions.MOCKK}")
   testImplementation(kotlin("test"))
+  testImplementation("org.springframework.boot:spring-boot-testcontainers")
+  testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 }
 
 // Formatting rules bundled with the plugin (a copy of this repository's .editorconfig)
